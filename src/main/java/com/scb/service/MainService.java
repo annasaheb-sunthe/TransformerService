@@ -10,15 +10,17 @@ import com.scb.model.TransformRule;
 
 @Service
 public interface MainService {
-	boolean saveTransformRule(TransformRule transformrule);
+	public boolean saveTransformRule(TransformRule transformrule);
 
-	List<TransformRule> getAllTransformRules();
+	public List<TransformRule> getAllTransformRules();
 
-	TransformRule getTransformRuleById(long tranformRuleId);
+	public TransformRule getTransformRuleById(long tranformRuleId);
 
-	List <TransformRule> getTransformRuleByType(String transactionType);
+	public List <TransformRule> getTransformRuleByType(String transactionType);
 		
-	void ModifyTransformRule(TransformRule transformrule);
+	public void ModifyTransformRule(TransformRule transformrule);
 
 	public List<TransformRule> getTransformRuleByTypes(RequestData requestData);
+	
+	public void DeleteTransformRuleModel(long tranformRuleId);
 }

@@ -18,5 +18,8 @@ public interface TransformRulesRepo extends JpaRepository<TransformRule, Long> {
 			+ "AND sd.sourceMessageType=?3", nativeQuery = true)
 	List<TransformRule> findByTypes(String transactionType, String transactionSubType, String sourceMessageType);
 	
-	public TransformRule findByTransactionTypeAndTransactionSubType(String transactionType, String transactionSubType);
+	@Query(value = "SELECT * FROM TransformRule sd WHERE sd.transactionType=?1 AND sd.transactionSubType=?2 "
+			+ "AND sd.sourceMessageType=?3", nativeQuery = true)
+	List<TransformRule> findByTransactionTypeAndTransactionSubType(String transactionType, String transactionSubType, 
+			String sourceMessageType);
 }

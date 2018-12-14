@@ -189,26 +189,35 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
 
 	@Override
 	public RequestData getParseRequestData(RequestData requestData) {
-		requestData.setPayload(xlst);
-		TransformRule dbTransformRule = transformRulesRepo.findByTransactionTypeAndTransactionSubType(
-				requestData.getTransactionType(), requestData.getTransactionSubType());
+		//requestData.setPayload(xlst);
+		List<TransformRule> list = transformRulesRepo.findByTransactionTypeAndTransactionSubType(
+				requestData.getTransactionType(), requestData.getTransactionSubType(), requestData.getPayloadFormat());
+		log.info("Transform Rule retrieved from db: " + list);
+		
+		TransformRule dbTransformRule = null;
+		if(list != null) {
+			dbTransformRule = list.get(0);
+		}
 		String parseOutput = null;
 		try {
 			if (dbTransformRule.getTargetMessageType().equalsIgnoreCase("JSON")) {
+				log.info("Transform - parsing from XML to JSON....");
 				parseOutput = xmlToJson(requestData.getPayload());
+				log.info("Transform - parsed from XML to JSON");
 			} else if (dbTransformRule.getTargetMessageType().equalsIgnoreCase("XML")) {
+				log.info("Transform - parsing from JSON to XML....");
 				parseOutput = jsonToXml(xmlToJson(requestData.getPayload()));
+				log.info("Transform - parsed from JSON to XML");
 			}
 		} catch (Exception e) {
+			log.info("Error while parsing request data : " + e.getMessage());
 			e.printStackTrace();
 		}
 		requestData.setPayload(parseOutput);
 		return requestData;
 	}
 
-	public String jaxbObjectToXML(Object employee)
-
-	{
+	public String jaxbObjectToXML(Object employee) {
 		// System.out.println( employee.toString() );
 		String xmlContent = null;
 		try {

@@ -2,9 +2,7 @@ package com.scb.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
 import java.util.NoSuchElementException;
 import java.util.Random;
 
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.scb.model.RequestData;
 import com.scb.model.TransformRule;
-
 import com.scb.repository.TransformRulesRepo;
 import com.scb.service.MainService;
 
@@ -86,6 +83,11 @@ public class MainServiceImpl implements MainService {
 	public TransformRule getTransformRuleById(long tranformRuleId) {
 		TransformRule obj = transformrepo.findById(tranformRuleId).get();
 		return obj;
+	}
+
+	@Override
+	public void DeleteTransformRuleModel(long tranformRuleId) {
+		transformrepo.delete(getTransformRuleById(tranformRuleId));
 	}
 
 	public long getTransfomerId() {
