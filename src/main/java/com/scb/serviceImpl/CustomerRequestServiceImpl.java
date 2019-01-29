@@ -1,7 +1,6 @@
 package com.scb.serviceImpl;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 
@@ -9,17 +8,11 @@ import javax.transaction.Transactional;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,6 +21,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.scb.model.CustomerRequestData;
 import com.scb.model.CustomerResponse;
 import com.scb.model.RequestData;
+import com.scb.model.ResponseMessage;
 import com.scb.model.TransformRule;
 import com.scb.repository.TransformRulesRepo;
 import com.scb.service.CustomerRequestService;
@@ -188,7 +182,7 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
 	}
 
 	@Override
-	public RequestData getParseRequestData(RequestData requestData) {
+	public ResponseMessage getParseRequestData(RequestData requestData) {
 		//requestData.setPayload(xlst);
 		List<TransformRule> list = transformRulesRepo.findByTransactionTypeAndTransactionSubType(
 				requestData.getTransactionType(), requestData.getTransactionSubType(), requestData.getPayloadFormat());
@@ -199,22 +193,37 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
 			dbTransformRule = list.get(0);
 		}
 		String parseOutput = null;
+		ResponseMessage responseMessage = new ResponseMessage();
 		try {
 			if (dbTransformRule.getTargetMessageType().equalsIgnoreCase("JSON")) {
 				log.info("Transform - parsing from XML to JSON....");
 				parseOutput = xmlToJson(requestData.getPayload());
 				log.info("Transform - parsed from XML to JSON");
+				responseMessage.setResponseCode(200);
+				responseMessage.setResponseMessage("Transformed payload from XML to JSON successfully.");
+				responseMessage.setResponseData(parseOutput);
 			} else if (dbTransformRule.getTargetMessageType().equalsIgnoreCase("XML")) {
 				log.info("Transform - parsing from JSON to XML....");
 				parseOutput = jsonToXml(xmlToJson(requestData.getPayload()));
 				log.info("Transform - parsed from JSON to XML");
+				responseMessage.setResponseCode(200);
+				responseMessage.setResponseMessage("Transformed payload from JSON to XML successfully.");
+				responseMessage.setResponseData(parseOutput);
+			} else {
+				log.info("Transform - Invalid target :" + dbTransformRule.getTargetMessageType());
+				responseMessage.setResponseCode(400);
+				responseMessage.setResponseMessage("Transformation failed - Target format not found.");
+				responseMessage.setResponseData(parseOutput);
 			}
 		} catch (Exception e) {
 			log.info("Error while parsing request data : " + e.getMessage());
+			responseMessage.setResponseCode(400);
+			responseMessage.setResponseMessage("Transformation failed - Exception occured:" + e.getMessage());
+			responseMessage.setResponseData(parseOutput);
 			e.printStackTrace();
 		}
-		requestData.setPayload(parseOutput);
-		return requestData;
+		//requestData.setPayload(parseOutput);
+		return responseMessage;
 	}
 
 	public String jaxbObjectToXML(Object employee) {

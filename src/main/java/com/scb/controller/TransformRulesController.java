@@ -20,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.scb.model.AuditLog;
 import com.scb.model.RequestData;
+import com.scb.model.ResponseMessage;
 import com.scb.model.TransformRule;
 import com.scb.service.CustomerRequestService;
 import com.scb.service.MainService;
@@ -48,7 +49,7 @@ public class TransformRulesController {
 	private InternalApiInvoker internalApiInvoker;
 	
 	@RequestMapping("/transformRequestHandler")
-	public ResponseEntity<RequestData> requestDataHandle(@RequestBody RequestData requestData) {
+	public ResponseEntity<ResponseMessage> requestDataHandle(@RequestBody RequestData requestData) {
 		log.debug("Request Data received - transactionType :" + requestData.getTransactionType() 
 				+ ", transactionSubType : " + requestData.getTransactionSubType()
 				+ ", payloadForamt : " + requestData.getPayloadFormat());
@@ -56,19 +57,20 @@ public class TransformRulesController {
 		AuditLog auditLog = commonMethods.getAuditLog(requestData, "INITIATED", "Request data transformation initiated");
 		ResponseEntity<AuditLog> responseAuditLog = internalApiInvoker.auditLogApiCall(auditLog);
 	
-		RequestData transformResponse = customerRequestService.getParseRequestData(requestData);
+		//RequestData transformResponse = customerRequestService.getParseRequestData(requestData);
+		ResponseMessage transformResponse = customerRequestService.getParseRequestData(requestData);
 		
 		
 		log.debug("transformResponse :" +transformResponse.toString());
 		
-		if (transformResponse.getPayload() == null) {
+		if (transformResponse.getResponseData() == null) {
 			auditLog = commonMethods.getAuditLog(requestData, "FAILED", "Failed to transform request message for transaction type: " + requestData.getTransactionType());
 		} else {
 			auditLog = commonMethods.getAuditLog(requestData, "COMPLETED", "Message transformation for transaction type: " + requestData.getTransactionType() + " successfully");
 		}
 
 		responseAuditLog = internalApiInvoker.auditLogApiCall(auditLog);
-		return new ResponseEntity<RequestData>(transformResponse, HttpStatus.OK);
+		return new ResponseEntity<ResponseMessage>(transformResponse, HttpStatus.OK);
 	}
 	
 	/*@RequestMapping("/transformRequestHandler1")
