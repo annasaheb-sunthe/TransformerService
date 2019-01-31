@@ -13,7 +13,7 @@ import lombok.ToString;
 
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD) @ToString
-public class ResponseMessage1 {
+public class ResponseMessage {
 	
 	private long responseCode;
 	private String responseMessage;
