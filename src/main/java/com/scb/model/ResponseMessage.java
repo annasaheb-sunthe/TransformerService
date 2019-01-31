@@ -14,7 +14,6 @@ import lombok.ToString;
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD) @ToString
 public class ResponseMessage {
-	
 	private long responseCode;
 	private String responseMessage;
 	private String responseData;
